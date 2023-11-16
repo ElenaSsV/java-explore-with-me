@@ -58,16 +58,15 @@ public class StatServiceClient {
 
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path,
                                                           @Nullable Map<String, Object> parameters,
-                                                          @Nullable T body) {
-        HttpEntity<T> requestEntity = new HttpEntity<>(body);
-
+                                                          T body) {
         ResponseEntity<Object> statServiceResponse;
         try {
-            if (parameters != null) {
+            if (parameters != null && body != null) {
+                HttpEntity<T> requestEntity = new HttpEntity<>(body);
                 statServiceResponse = ret.exchange(path, method, requestEntity, Object.class, parameters);
                 log.info("StatServiceClient received response {}", statServiceResponse.getBody());
             } else {
-                statServiceResponse = ret.exchange(path, method, requestEntity, Object.class);
+                statServiceResponse = ret.exchange(path, method, null, Object.class);
                 log.info("StatServiceClient received response {}", statServiceResponse.getBody());
             }
         } catch (HttpStatusCodeException e) {
