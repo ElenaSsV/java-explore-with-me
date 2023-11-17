@@ -1,11 +1,15 @@
 package ru.practicum.statsDto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class ViewStats {
-    public String app;
-    public String uri;
-    public long hits;
+    private String app;
+    private String uri;
+    private long hits;
 }
