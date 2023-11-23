@@ -3,6 +3,7 @@ services:
   stats-server:
     build: ./ewm-stats-service/stats-service/.
     image: ewm_stats_service
+    container_name: ewm-stats-service
     ports:
       - "9090:9090"
     depends_on:
@@ -27,7 +28,7 @@ services:
   ewm-service:
     build: ./ewm-main-service/.
     image: ewm_service_image
-    container_name: ewm_main_service
+    container_name: ewm-main-service
     ports:
       - "8080:8080"
     depends_on:

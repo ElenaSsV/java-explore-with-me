@@ -29,15 +29,21 @@ public class StatServiceImpl implements StatService {
     public List<ViewStats> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         log.info("Retrieving view statistics with following params: start {}, end {}, uris {}, unique {}",
                 start, end, uris, unique);
+        List<ViewStats> views;
 
         if (!uris.isEmpty() && !unique) {
-            return statsRepository.findByTimestampBetweenAndUrisIn(start, end, uris);
+            views = statsRepository.findByTimestampBetweenAndUrisIn(start, end, uris);
+            log.info("Views={}", views);
         } else if (!uris.isEmpty() && unique) {
-            return statsRepository.findByTimestampBetweenAndUrisInForUniqueIp(start, end, uris);
+            views = statsRepository.findByTimestampBetweenAndUrisInForUniqueIp(start, end, uris);
+            log.info("Views={}", views);
         } else if (uris.isEmpty() && unique) {
-            return statsRepository.findByTimestampBetweenForUniqueIp(start, end);
+            views = statsRepository.findByTimestampBetweenForUniqueIp(start, end);
+            log.info("Views={}", views);
         } else {
-            return statsRepository.findByTimestampBetween(start, end);
+            views = statsRepository.findByTimestampBetween(start, end);
+            log.info("Views={}", views);
         }
+        return views;
     }
 }
