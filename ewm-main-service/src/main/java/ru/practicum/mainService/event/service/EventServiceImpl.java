@@ -46,7 +46,7 @@ public class EventServiceImpl implements EventService {
     private static final String APP_NAME = "ewm-main-service";
     private static final String START = "2020-05-05 00:00:00";
     private static final String END = "2035-05-05 00:00:00";
-    private final StatServiceClient statsClient = new StatServiceClient();
+    private final StatServiceClient statsClient;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;

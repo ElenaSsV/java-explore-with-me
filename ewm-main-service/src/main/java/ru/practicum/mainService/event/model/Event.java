@@ -1,6 +1,6 @@
 package ru.practicum.mainService.event.model;
 
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Formula;
 import ru.practicum.mainService.category.model.Category;
 import ru.practicum.mainService.event.location.Location;
@@ -9,11 +9,18 @@ import ru.practicum.mainService.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "events")
 public class Event {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     @Column(name = "annotation", nullable = false)
     private String annotation;
     @ManyToOne
@@ -27,9 +34,6 @@ public class Event {
     private String description;
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
     @ManyToOne
     @JoinColumn(name = "initiator_id")
     private User initiator;

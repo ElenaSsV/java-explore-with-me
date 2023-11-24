@@ -1,18 +1,18 @@
 package ru.practicum.mainService.participationRequest.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.mainService.event.model.Event;
 import ru.practicum.mainService.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@Entity
 @Table(name = "requests")
 public class ParticipationRequest {
     @Column(name = "created", nullable = false)

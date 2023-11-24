@@ -1,13 +1,17 @@
 package ru.practicum.mainService.compilation.model;
 
-import lombok.Data;
+import lombok.*;
 import ru.practicum.mainService.event.model.Event;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "compilations")
 public class Compilation {

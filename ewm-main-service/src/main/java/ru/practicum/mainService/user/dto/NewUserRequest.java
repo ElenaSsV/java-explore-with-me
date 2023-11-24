@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewUserRequest {
-    @NotBlank
+    @NotBlank(message = "Email cannot be blank or null.")
     @Email
     @Size(min = 6, max = 254, message = "Email should not be less than 6 symbols and longer that 254 symbols")
     private String email;

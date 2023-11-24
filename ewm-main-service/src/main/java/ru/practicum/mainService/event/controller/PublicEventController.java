@@ -38,14 +38,7 @@ public class PublicEventController {
                 "rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd,
                 onlyAvailable, sort, from, size);
 
-        if (text != null) {
-            char[] chars = text.toCharArray();
-            for (char c : chars) {
-                if (Character.isDigit(c)) {
-                    throw new InputValidationException("Text should  contain only letters.");
-                }
-            }
-        }
+        checkText(text);
 
         PageRequest page = PageRequest.of(from, size);
 
@@ -58,5 +51,16 @@ public class PublicEventController {
         log.info("Received request to get events with the following params: id={}, request={}", id, request);
 
         return eventService.getEventByIdAnyUser(id, request);
+    }
+
+    private void checkText(String text) {
+        if (text != null) {
+            char[] chars = text.toCharArray();
+            for (char c : chars) {
+                if (Character.isDigit(c)) {
+                    throw new InputValidationException("Text should  contain only letters.");
+                }
+            }
+        }
     }
 }
