@@ -2,10 +2,13 @@ package ru.practicum.statsService.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statsDto.EndPointHitDto;
 import ru.practicum.statsDto.ViewStats;
+import ru.practicum.statsService.exception.InputValidationException;
 import ru.practicum.statsService.service.StatService;
 
 import javax.validation.Valid;
@@ -27,16 +30,17 @@ public class StatServiceController {
     private final StatService statService;
 
     @PostMapping("/hit")
-    public EndPointHitDto post(@RequestBody @Valid EndPointHitDto endPointHitDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void post(@RequestBody @Valid EndPointHitDto endPointHitDto) {
         log.info("Posting endPointHitDto {}", endPointHitDto);
-        return statService.save(endPointHitDto);
+        statService.save(endPointHitDto);
     }
 
     @GetMapping("/stats")
-    public List<ViewStats> get(@NotBlank @RequestParam(name = "start") String start,
-                               @NotBlank @RequestParam(name = "end") String end,
-                               @RequestParam(name = "uris", required = false) List<String> uris,
-                               @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
+    public ResponseEntity<List<ViewStats>> get(@NotBlank @RequestParam(name = "start") String start,
+                                              @NotBlank @RequestParam(name = "end") String end,
+                                              @RequestParam(name = "uris", required = false) List<String> uris,
+                                              @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
 
         String decodedStart = URLDecoder.decode(start, StandardCharsets.UTF_8);
         String decodedEnd = URLDecoder.decode(end, StandardCharsets.UTF_8);
@@ -48,6 +52,13 @@ public class StatServiceController {
         LocalDateTime startTime = LocalDateTime.parse(decodedStart, formatter);
         LocalDateTime endTime = LocalDateTime.parse(decodedEnd, formatter);
 
-        return statService.getStatistics(startTime, endTime, Objects.requireNonNullElseGet(uris, ArrayList::new), unique);
+        if (endTime.isBefore(startTime)) {
+            throw new InputValidationException("End cannot be before start.");
+        }
+        List<ViewStats> response = statService.getStatistics(startTime, endTime, Objects.requireNonNullElseGet(uris,
+                ArrayList::new), unique);
+        log.info("Received response: {}", response);
+
+        return ResponseEntity.ok().body(response);
     }
 }
