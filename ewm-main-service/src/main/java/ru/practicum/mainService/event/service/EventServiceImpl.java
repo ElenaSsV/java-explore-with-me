@@ -6,26 +6,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mainService.event.model.QEvent;
-import ru.practicum.mainService.participationRequest.dto.ParticipationRequestDto;
-import ru.practicum.mainService.participationRequest.mapper.RequestMapper;
-import ru.practicum.mainService.event.dto.*;
-import ru.practicum.mainService.event.mapper.EventMapper;
 import ru.practicum.mainService.category.model.Category;
+import ru.practicum.mainService.category.repository.CategoryRepository;
+import ru.practicum.mainService.comment.repository.CommentRepository;
+import ru.practicum.mainService.comment.dto.CommentDto;
+import ru.practicum.mainService.comment.mapper.CommentMapper;
+import ru.practicum.mainService.comment.model.Comment;
+import ru.practicum.mainService.event.dto.*;
+import ru.practicum.mainService.event.location.Location;
+import ru.practicum.mainService.event.location.LocationRepository;
+import ru.practicum.mainService.event.mapper.EventMapper;
 import ru.practicum.mainService.event.model.Event;
+import ru.practicum.mainService.event.model.QEvent;
 import ru.practicum.mainService.event.model.State;
 import ru.practicum.mainService.event.model.StateAction;
+import ru.practicum.mainService.event.repository.EventRepository;
 import ru.practicum.mainService.exception.DataConflictException;
 import ru.practicum.mainService.exception.InputValidationException;
 import ru.practicum.mainService.exception.NotFoundException;
-import ru.practicum.mainService.event.location.Location;
+import ru.practicum.mainService.participationRequest.dto.ParticipationRequestDto;
+import ru.practicum.mainService.participationRequest.mapper.RequestMapper;
 import ru.practicum.mainService.participationRequest.model.ParticipationRequest;
 import ru.practicum.mainService.participationRequest.model.RequestStatus;
-import ru.practicum.mainService.user.model.User;
-import ru.practicum.mainService.category.repository.CategoryRepository;
-import ru.practicum.mainService.event.repository.EventRepository;
-import ru.practicum.mainService.event.location.LocationRepository;
 import ru.practicum.mainService.participationRequest.repository.ParticipationRequestRepository;
+import ru.practicum.mainService.user.model.User;
 import ru.practicum.mainService.user.repository.UserRepository;
 import ru.practicum.statClient.StatServiceClient;
 import ru.practicum.statsDto.EndPointHitDto;
@@ -34,6 +38,7 @@ import ru.practicum.statsDto.ViewStats;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -52,6 +57,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final ParticipationRequestRepository requestRepository;
     private final LocationRepository locationRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
@@ -71,7 +77,9 @@ public class EventServiceImpl implements EventService {
         Event eventToPost = EventMapper.toEvent(newEventDto, category, user, location);
         log.info("Event to post={}", eventToPost);
 
-        return EventMapper.toEventFullDto(eventRepository.save(eventToPost));
+        Event savedEvent = eventRepository.save(eventToPost);
+
+        return EventMapper.toEventFullDto(savedEvent, getCommentsToEvent(savedEvent.getId()));
     }
 
     @Override
@@ -108,7 +116,7 @@ public class EventServiceImpl implements EventService {
         Event updatedEvent = EventMapper.toEventFromEventUpdateAdminRequest(eventToUpdate, updateRequest, category);
         log.info("Updated event={}", updatedEvent);
 
-        return EventMapper.toEventFullDto(eventRepository.save(updatedEvent));
+        return EventMapper.toEventFullDto(eventRepository.save(updatedEvent), getCommentsToEvent(eventId));
     }
 
     @Override
@@ -142,20 +150,38 @@ public class EventServiceImpl implements EventService {
                 .reduce(BooleanExpression::and);
         log.info("FinalCondition={}", finalCondition);
 
-        return finalCondition.map(booleanExpression -> eventRepository.findAll(booleanExpression, eventRequest.getPageRequest()).stream()
-                .map(EventMapper::toEventFullDto)
-                .collect(Collectors.toList())).orElseGet(() -> eventRepository.findAll(eventRequest.getPageRequest()).stream()
-                .map(EventMapper::toEventFullDto)
-                .collect(Collectors.toList()));
+        Map<Long, Event> eventMap = finalCondition.map(booleanExpression -> eventRepository.findAll(booleanExpression,
+                        eventRequest.getPageRequest()).stream()
+                        .collect(Collectors.toMap(Event::getId, Function.identity())))
+                        .orElseGet(() -> eventRepository.findAll(eventRequest.getPageRequest()).stream()
+                        .collect(Collectors.toMap(Event::getId, Function.identity())));
+
+        Map<Long, List<Comment>> commentsMap = commentRepository.findAllByEvent_IdIn(eventMap.keySet()).stream()
+                .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
+
+        return eventMap.values()
+                .stream()
+                .map(foundEvent -> EventMapper.toEventFullDto(foundEvent,
+                        CommentMapper.toCommentDtoList(commentsMap.getOrDefault(foundEvent.getId(), Collections.emptyList()))))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<EventFullDto> getEventsByCurrentUser(long userId, PageRequest pageRequest) {
         log.info("Retrieving events by user with id={}, pageRequest={}", userId, pageRequest);
+        Map<Long, Event> eventMap = eventRepository.findByInitiator_id(userId, pageRequest)
+                .stream()
+                .collect(Collectors.toMap(Event::getId, Function.identity()));
 
-        return eventRepository.findByInitiator_id(userId, pageRequest).stream()
-                .map(EventMapper::toEventFullDto)
+        Map<Long, List<Comment>> commentsMap = commentRepository.findAllByEvent_IdIn(eventMap.keySet()).stream()
+                .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
+
+        return eventMap.values()
+                .stream()
+                .map(event -> EventMapper.toEventFullDto(event,
+                        CommentMapper.toCommentDtoList(commentsMap.getOrDefault(event.getId(), Collections.emptyList()))))
                 .collect(Collectors.toList());
+
     }
 
     @Override
@@ -165,7 +191,7 @@ public class EventServiceImpl implements EventService {
         Event searchedEvent = eventRepository.findByIdAndInitiator_id(eventId, userId).orElseThrow(() ->
                 new NotFoundException("Event with id= " + eventId + " which has initiator id= " + userId + " is not found"));
 
-        return EventMapper.toEventFullDto(searchedEvent);
+        return EventMapper.toEventFullDto(searchedEvent, getCommentsToEvent(eventId));
     }
 
     @Override
@@ -190,7 +216,7 @@ public class EventServiceImpl implements EventService {
 
         Event updatedEvent = EventMapper.toEventFromEventUpdateUserRequest(eventToUpdate, request, category);
 
-        return EventMapper.toEventFullDto(eventRepository.save(updatedEvent));
+        return EventMapper.toEventFullDto(eventRepository.save(updatedEvent), getCommentsToEvent(eventId));
     }
 
     @Override
@@ -336,15 +362,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventByIdAnyUser(long eventId, HttpServletRequest request) {
-        Event searchedEvent = eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException("Event with id=" + eventId + " is not found."));
-        if (!searchedEvent.getState().equals(State.PUBLISHED)) {
-            throw new NotFoundException("Event with id=" + eventId + " is not found.");
-        }
+        Event searchedEvent = checkEvent(eventId);
         Event eventWithViews = addViewsToEvent(searchedEvent, request);
         sendEndpointHit(request);
 
-        return EventMapper.toEventFullDto(eventWithViews);
+        return EventMapper.toEventFullDto(eventWithViews, getCommentsToEvent(eventId));
     }
 
     private void checkEventTime(LocalDateTime eventDate) {
@@ -408,6 +430,21 @@ public class EventServiceImpl implements EventService {
             statsClient.saveEndPointHit(new EndPointHitDto(0L, APP_NAME, "/events/" + viewedEvent.getId(),
                     request.getRemoteAddr(), LocalDateTime.now()));
         }
+    }
+
+    private Event checkEvent(long eventId) {
+        Event searchedEvent = eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Event with id=" + eventId + " is not found."));
+        if (!searchedEvent.getState().equals(State.PUBLISHED)) {
+            throw new NotFoundException("Event with id=" + eventId + " is not found.");
+        }
+        return searchedEvent;
+    }
+
+    private List<CommentDto> getCommentsToEvent(long eventId) {
+        return commentRepository.findAllByEvent_IdOrderByCreatedDesc(eventId).stream()
+                .map(CommentMapper::toCommentDto)
+                .collect(Collectors.toList());
     }
 
 }

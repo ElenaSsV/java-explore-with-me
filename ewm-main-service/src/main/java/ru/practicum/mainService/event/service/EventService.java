@@ -2,8 +2,8 @@ package ru.practicum.mainService.event.service;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.mainService.participationRequest.dto.ParticipationRequestDto;
 import ru.practicum.mainService.event.dto.*;
+import ru.practicum.mainService.participationRequest.dto.ParticipationRequestDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -30,4 +30,5 @@ public interface EventService {
     List<EventShortDto> getEventsByAnyUser(GetEventPublicRequest getEventRequest, PageRequest pageRequest, HttpServletRequest request);
 
     EventFullDto getEventByIdAnyUser(long eventId, HttpServletRequest request);
+
 }
