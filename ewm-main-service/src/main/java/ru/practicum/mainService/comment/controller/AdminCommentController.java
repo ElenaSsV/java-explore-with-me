@@ -23,11 +23,11 @@ public class AdminCommentController {
                                         @RequestParam(name = "edited", required = false) Boolean edited,
                                         @RequestParam(name = "authorId", required = false) Long authorId,
                                         @RequestParam(name = "text", required = false) String text,
-                                        @RequestParam(name = "sort", required = false, defaultValue = "NEWEST") String commentSort,
+                                        @RequestParam(name = "sort", defaultValue = "NEWEST") String commentSort,
                                         @RequestParam(name = "rangeStart", required = false) String rangeStart,
                                         @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
-                                        @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                        @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+                                        @RequestParam(name = "from", defaultValue = "0") int from,
+                                        @RequestParam(name = "size", defaultValue = "10") int size) {
 
         log.info("Received request to get comments with the following params: eventId={}, edited={}, authorId={}, " +
                 "text={}, commentSort={}, " +

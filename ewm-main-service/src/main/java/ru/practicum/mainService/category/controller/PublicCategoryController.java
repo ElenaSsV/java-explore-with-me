@@ -21,8 +21,8 @@ public class PublicCategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryDto> getAllCategoriesByAnyUser(@RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                                       @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+    public List<CategoryDto> getAllCategoriesByAnyUser(@RequestParam(name = "from", defaultValue = "0") int from,
+                                                       @RequestParam(name = "size", defaultValue = "10") int size) {
        log.info("Received request to get categories with the following params: from={}, size={}", from, size);
         PageRequest page = PageRequest.of(from, size);
         return categoryService.getAllCategoriesByAnyUser(page);

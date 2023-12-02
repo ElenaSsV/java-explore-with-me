@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.mainService.comment.dto.CommentUpdateAuthorRequest;
+import ru.practicum.mainService.comment.dto.UpdateCommentDto;
 import ru.practicum.mainService.comment.dto.GetCommentsAdminRequest;
 import ru.practicum.mainService.comment.dto.NewCommentDto;
 import ru.practicum.mainService.comment.model.Comment;
@@ -121,7 +121,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDto updateCommentByAuthor(long userId, long commentId, CommentUpdateAuthorRequest updateAuthorRequest) {
+    public CommentDto updateCommentByAuthor(long userId, long commentId, UpdateCommentDto updateAuthorRequest) {
         log.info("Updating comment with the following params; commentId={}, userId={}, updateAuthorRequest={}",
                 commentId, userId, updateAuthorRequest);
 

@@ -12,7 +12,6 @@ import ru.practicum.mainService.user.model.User;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,14 +87,9 @@ public class EventMapper {
                 .collect(Collectors.toSet());
     }
 
-    public static Event toEventFromEventUpdateUserRequest(Event event, UpdateEventUserRequest request,
-                                                          Optional<Category> category) {
+    public static Event toEventFromEventUpdateUserRequest(Event event, UpdateEventUserRequest request) {
         if (request.getAnnotation() != null) {
             event.setAnnotation(request.getAnnotation());
-        }
-        category.ifPresent(event::setCategory);
-        if (request.getDescription() != null) {
-            event.setDescription(request.getDescription());
         }
 
         if (request.getEventDate() != null) {
@@ -134,12 +128,11 @@ public class EventMapper {
         return event;
     }
 
-    public static Event toEventFromEventUpdateAdminRequest(Event event, UpdateEventAdminRequest request,
-                                                          Optional<Category> category) {
+    public static Event toEventFromEventUpdateAdminRequest(Event event, UpdateEventAdminRequest request) {
         if (request.getAnnotation() != null) {
             event.setAnnotation(request.getAnnotation());
         }
-        category.ifPresent(event::setCategory);
+
         if (request.getDescription() != null) {
             event.setDescription(request.getDescription());
         }

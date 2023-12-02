@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainService.category.model.Category;
 import ru.practicum.mainService.category.repository.CategoryRepository;
-import ru.practicum.mainService.comment.repository.CommentRepository;
 import ru.practicum.mainService.comment.dto.CommentDto;
 import ru.practicum.mainService.comment.mapper.CommentMapper;
 import ru.practicum.mainService.comment.model.Comment;
+import ru.practicum.mainService.comment.repository.CommentRepository;
 import ru.practicum.mainService.event.dto.*;
 import ru.practicum.mainService.event.location.Location;
 import ru.practicum.mainService.event.location.LocationRepository;
@@ -93,11 +93,10 @@ public class EventServiceImpl implements EventService {
         if (updateRequest.getEventDate() != null) {
             checkEventTime(updateRequest.getEventDate());
         }
-        Optional<Category> category;
         if (updateRequest.getCategory() != null) {
-            category = categoryRepository.findById(updateRequest.getCategory());
-        } else {
-            category = Optional.empty();
+            Category category = categoryRepository.findById(updateRequest.getCategory()).orElseThrow(()
+                    -> new NotFoundException("Category with id=" + updateRequest.getCategory() + " is not found."));
+            eventToUpdate.setCategory(category);
         }
 
         if (updateRequest.getStateAction() != null) {
@@ -113,7 +112,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        Event updatedEvent = EventMapper.toEventFromEventUpdateAdminRequest(eventToUpdate, updateRequest, category);
+        Event updatedEvent = EventMapper.toEventFromEventUpdateAdminRequest(eventToUpdate, updateRequest);
         log.info("Updated event={}", updatedEvent);
 
         return EventMapper.toEventFullDto(eventRepository.save(updatedEvent), getCommentsToEvent(eventId));
@@ -207,14 +206,14 @@ public class EventServiceImpl implements EventService {
         if (request.getEventDate() != null) {
             checkEventTime(request.getEventDate());
         }
-       Optional<Category> category;
+
         if (request.getCategory() != null) {
-            category = categoryRepository.findById(request.getCategory());
-        } else {
-            category = Optional.empty();
+            Category category = categoryRepository.findById(request.getCategory()).orElseThrow(()
+                    -> new NotFoundException("Category with id=" + request.getCategory() + " is not found."));
+            eventToUpdate.setCategory(category);
         }
 
-        Event updatedEvent = EventMapper.toEventFromEventUpdateUserRequest(eventToUpdate, request, category);
+        Event updatedEvent = EventMapper.toEventFromEventUpdateUserRequest(eventToUpdate, request);
 
         return EventMapper.toEventFullDto(eventRepository.save(updatedEvent), getCommentsToEvent(eventId));
     }

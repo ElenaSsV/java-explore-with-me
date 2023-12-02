@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainService.comment.dto.CommentDto;
-import ru.practicum.mainService.comment.dto.CommentUpdateAuthorRequest;
+import ru.practicum.mainService.comment.dto.UpdateCommentDto;
 import ru.practicum.mainService.comment.dto.NewCommentDto;
 import ru.practicum.mainService.comment.service.CommentService;
 
@@ -32,7 +32,7 @@ public class PrivateCommentController {
     @PatchMapping("/{commentId}")
     public CommentDto updateCommentByAuthor(@PathVariable Long userId,
                                             @PathVariable Long commentId,
-                                            @RequestBody @Valid CommentUpdateAuthorRequest updateAuthorRequest) {
+                                            @RequestBody @Valid UpdateCommentDto updateAuthorRequest) {
         log.info("Received request to update comment with the following params: userId={}. commentId={}," +
                 "updateAuthorRequest={}", userId, commentId, updateAuthorRequest);
         return commentService.updateCommentByAuthor(userId, commentId, updateAuthorRequest);
@@ -48,8 +48,8 @@ public class PrivateCommentController {
 
     @GetMapping
     public List<CommentDto> getCommentsByAuthor(@PathVariable Long userId,
-                                                @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                                @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+                                                @RequestParam(name = "from", defaultValue = "0") int from,
+                                                @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Received request to get comments with the following params: userId={}, from={}, size={}", userId, from, size);
         return commentService.getCommentsByAuthor(userId, from, size);
     }

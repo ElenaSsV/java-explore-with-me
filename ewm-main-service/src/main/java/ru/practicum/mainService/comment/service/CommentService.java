@@ -1,7 +1,7 @@
 package ru.practicum.mainService.comment.service;
 
 import ru.practicum.mainService.comment.dto.CommentDto;
-import ru.practicum.mainService.comment.dto.CommentUpdateAuthorRequest;
+import ru.practicum.mainService.comment.dto.UpdateCommentDto;
 import ru.practicum.mainService.comment.dto.GetCommentsAdminRequest;
 import ru.practicum.mainService.comment.dto.NewCommentDto;
 
@@ -17,7 +17,7 @@ public interface CommentService {
 
     void deleteCommentByIdByAuthor(long userId, long commentId);
 
-    CommentDto updateCommentByAuthor(long userId, long commentId, CommentUpdateAuthorRequest updateAuthorRequest);
+    CommentDto updateCommentByAuthor(long userId, long commentId, UpdateCommentDto updateAuthorRequest);
 
     List<CommentDto> getCommentsByAuthor(long userId, int from, int size);
 }

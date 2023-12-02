@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 public class NewCommentDto {
 
     @NotNull
-    private long eventId;
+    private Long eventId;
     @NotBlank(message = "Text cannot be empty or blank.")
     @Size(min = 2, max = 1000, message = "Text should be min 2 symbols, max 1000 symbols")
     private String text;

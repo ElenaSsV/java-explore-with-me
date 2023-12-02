@@ -37,8 +37,8 @@ public class AdminEventController {
                                            @RequestParam(name = "categories", required = false) Set<Long> categories,
                                            @RequestParam(name = "rangeStart", required = false) String rangeStart,
                                            @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
-                                           @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                           @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+                                           @RequestParam(name = "from", defaultValue = "0") int from,
+                                           @RequestParam(name = "size", defaultValue = "10") int size) {
         PageRequest page = PageRequest.of(from / size, size);
 
         log.info("Received request to get events with the following params: users={}, states={}, categories={}, " +

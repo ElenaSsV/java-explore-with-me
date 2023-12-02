@@ -31,10 +31,10 @@ public class PublicEventController {
                                                   @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
                                                   @RequestParam(name = "onlyAvailable", required = false, defaultValue = "false") Boolean onlyAvailable,
                                                   @RequestParam(name = "sort", required = false) String sort,
-                                                  @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                                  @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                  @RequestParam(name = "from", defaultValue = "0") int from,
+                                                  @RequestParam(name = "size", defaultValue = "10") int size,
                                                   HttpServletRequest request) {
-        log.info("Received request to get events with the following params: text={}, categpries={}, paid={}, rangeStart={}," +
+        log.info("Received request to get events with the following params: text={}, categories={}, paid={}, rangeStart={}," +
                 "rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd,
                 onlyAvailable, sort, from, size);
 
