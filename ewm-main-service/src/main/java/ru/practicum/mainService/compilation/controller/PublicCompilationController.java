@@ -21,8 +21,8 @@ public class PublicCompilationController {
 
     @GetMapping
     public List<CompilationDto> getCompilationsByAnyUser(@RequestParam(name = "pinned", required = false) Boolean pinned,
-                                                         @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                                         @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+                                                         @RequestParam(name = "from", defaultValue = "0") int from,
+                                                         @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Received request to get compilations with the following params: pinned={}, from={}, size={}",
                 pinned, from, size);
         PageRequest page = PageRequest.of(from, size);

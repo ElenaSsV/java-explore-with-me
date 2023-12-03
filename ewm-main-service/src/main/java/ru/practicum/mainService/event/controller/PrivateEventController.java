@@ -32,8 +32,8 @@ public class PrivateEventController {
 
     @GetMapping
     public List<EventFullDto> getEventsByCurrentUser(@PathVariable Long userId,
-                                                     @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-                                                     @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+                                                     @RequestParam(name = "from", defaultValue = "0") int from,
+                                                     @RequestParam(name = "size", defaultValue = "10") int size) {
         PageRequest page = PageRequest.of(from, size);
         log.info("Received request to retrieve events with following params: user id={}, from={}, size={}", userId, from, size);
         return eventService.getEventsByCurrentUser(userId, page);

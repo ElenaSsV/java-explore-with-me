@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EventShortDto {
 
+    private long id;
     @NotBlank
     private String annotation;
     @NotNull
@@ -24,7 +25,6 @@ public class EventShortDto {
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
-    private long id;
     @NotNull
     private UserShortDto initiator;
     @NotNull
